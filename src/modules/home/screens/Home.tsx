@@ -1,9 +1,7 @@
 import FooterShared from "../../../components/shared/FooterShared"
 import HeaderShared from "../../../components/shared/HeaderShared"
-
-import { Button } from 'antd';
-
 import { StyleContentHome } from "../styles/homeScreens.styles";
+import DrawerShared from "../../../components/shared/DrawerShared";
 
 const Home = () => {
 
@@ -28,17 +26,13 @@ const Home = () => {
     ]  
   }
 
-  const handleOpenDrawer = () => {
-    console.log('open')
-  }
-
   return (
     <>
       <HeaderShared />
         <StyleContentHome>
           <div className="container">
             <h1>Desafio Front-End Sênior</h1>
-            <Button type="primary" onClick={handleOpenDrawer}>Abrir Drawer</Button>
+            <DrawerShared />
             <h3>Listagem de Clientes:</h3>
             <ul>
               {clientes.cliente.length && clientes.cliente.map((cliente, index) => (
