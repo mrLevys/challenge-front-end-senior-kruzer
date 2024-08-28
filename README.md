@@ -5,8 +5,7 @@ Desafio Front-End Sênior para Kruzer.io, este template foi iniciado usando o Vi
 Links oficiais das documentações:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) usa [Babel](https://babeljs.io/) para recarregamento rápido
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) use [SWC](https://swc.rs/)  para recarregamento rápido
-
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) use [SWC](https://swc.rs/) para recarregamento rápido
 
 ## Instalação
 
@@ -45,7 +44,7 @@ export default tseslint.config({
       tsconfigRootDir: import.meta.dirname,
     },
   },
-})
+});
 ```
 
 - Substitua `tseslint.configs.recommended` para `tseslint.configs.recommendedTypeChecked` ou `tseslint.configs.strictTypeChecked`
@@ -54,7 +53,7 @@ export default tseslint.config({
 
 ```js
 // eslint.config.js
-import react from 'eslint-plugin-react'
+import react from 'eslint-plugin-react';
 
 export default tseslint.config({
   // Set the react version
@@ -69,5 +68,5 @@ export default tseslint.config({
     ...react.configs.recommended.rules,
     ...react.configs['jsx-runtime'].rules,
   },
-})
+});
 ```
