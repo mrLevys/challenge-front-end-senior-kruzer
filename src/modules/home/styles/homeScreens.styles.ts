@@ -6,4 +6,7 @@ export const StyleContentHome = styled.div `
   display: flex;
   justify-content: center;
   flex-direction: column;
+  .container {
+    padding:15px
+  }
 `

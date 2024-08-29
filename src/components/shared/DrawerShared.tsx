@@ -1,26 +1,61 @@
 import { useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Col, Drawer, Form, Input, Row} from 'antd';
+import { Button, Col, Drawer, Form, Input, Row, Space} from 'antd';
+import { useForm, useFieldArray, Controller} from 'react-hook-form';
+import styled from 'styled-components';
+import { useAtom } from 'jotai';
+import { clientListAtom } from '../../atoms/ClientAtoms';
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 36 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 36 },
-  },
-};
+const StyledDrawer = styled(Drawer)`
+  .ant-drawer-body {
+    padding-bottom: 80px;
+  }
+`;
 
-const formItemLayoutWithOutLabel = {
-  wrapperCol: {
-    xs: { span: 24, offset: 0 },
-    sm: { span: 36, offset: 0 },
-  },
-};
+interface FormData {
+  firstName: string;
+  lastName: string;
+  cpf: string;
+  observations: {value: string}[];
+}
 
 const DrawerShared = () => {
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [clientList, setClientList] = useAtom(clientListAtom);
+  
+  const { control, handleSubmit, reset } = useForm<FormData>({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      cpf: '',
+      observations: [{ value: ''}]
+    }
+  });
+  
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'observations'
+  });
+
+  const onSubmit = (data: FormData) => {
+    console.log('dt ==>',data)
+    setClientList([
+      ...clientList,
+      {
+        id: Date.now(),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        cpf: data.cpf,
+        observations: data.observations.map(obs => obs.value),
+      }
+    ]);
+    reset();
+    onClose();
+  };
+
+  const next = () => setCurrentStep(1);
+  const prev = () => setCurrentStep(0);
 
   const [open, setOpen] = useState(false);
 
@@ -32,138 +67,114 @@ const DrawerShared = () => {
     setOpen(false);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onFinish = (values: any) => {
-    console.log('Received values of form:', values);
-  };
-
   return (
     <>
       <Button type="primary" onClick={showDrawer} icon={<PlusOutlined />}>
         Cadastro cliente
       </Button>
-      <Drawer
+      <StyledDrawer
         title="Cadatro de Cliente"
-        width={550}
+        width={480}
         onClose={onClose}
         open={open}
-        styles={{
-          body: {
-            paddingBottom: 80,
-          },
-        }}
+        footer={
+          <Space>
+            {currentStep > 0 && <Button onClick={prev}>Voltar</Button>}
+            <Button onClick={onClose}>Cancelar</Button>
+            {currentStep === 0 && <Button onClick={next}>Próximo</Button>}
+            {currentStep === 1 && (
+              <Button type="primary" onClick={handleSubmit(onSubmit)}>
+                Salvar
+              </Button>
+            )}
+          </Space>
+        }
       >
-        <Form layout="vertical" hideRequiredMark onFinish={onFinish}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="nome"
-                label="Nome"
-                rules={[{ required: true, message: 'Por favor digite seu nome' }]}
-              >
-                <Input placeholder="Digite seu nome" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="sobreNome"
-                label="Sobrenome"
-                rules={[{ required: true, message: 'Por favor digite seu sobrenome' }]}
-              >
-                <Input placeholder="Digite seu sobrenome" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="cpf"
-                label="cpf"
-                rules={[{ required: true, message: 'Por favor digite seu CPF' }]}
-              >
-                <Input placeholder="Digite seu CPF" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <strong>Lista de observações <small>(opcional)</small></strong>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.List
-                  name="items"
-                  rules={[
-                    {
-                      validator: async (_, items) => {
-                        if (!items || items.length >= 2) {
-                          return Promise.reject(new Error('Digite as observações ou exclua o campo adicional.'));
-                        }
-                      },
-                    },
-                  ]}
-                >
-                  {(fields, { add, remove }, { errors }) => (
-                    <>
-                      {fields.map((field, index) => (
-                        <Form.Item
-                          {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                          label={index === 0 ? 'observação 1' : `observação ${index+1}`}
-                          required={false}
-                          key={field.key}
-                        >
-                          <Form.Item
-                            {...field}
-                            validateTrigger={['onChange', 'onBlur']}
-                            rules={[
-                              {
-                                required: true,
-                                whitespace: true,
-                                message: "Insira a observação ou exclua este campo.",
-                              },
-                            ]}
-                            noStyle
-                          >
-                            <Input placeholder="Digite sua observação" style={{ width: '80%', marginRight: '10px' }} />
-                          </Form.Item>
-                          {fields.length > 1 ? (
-                            <MinusCircleOutlined
-                              className="dynamic-delete-button"
-                              onClick={() => remove(field.name)}
-                            />
-                          ) : null}
-                        </Form.Item>
-                      ))}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          style={{ width: '100%' }}
-                          icon={<PlusOutlined />}
-                        >
-                          adicionar observação
-                        </Button>
-                        <Form.ErrorList errors={errors} />
-                      </Form.Item>
-                    </>
-                  )}
-              </Form.List>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-              </Form.Item>
-            </Col>
-          </Row>
+        <Form layout="vertical" hideRequiredMark>
+          {currentStep === 0 && (
+            <>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="firstName"
+                    label="Nome"
+                    rules={[{ required: true, message: 'Por favor digite seu nome' }]}
+                  >
+                    <Controller 
+                      name='firstName'
+                      control={control}
+                      render={(field) => <Input placeholder="Digite seu nome" {...field} />}
+                    />                    
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="lastName"
+                    label="Sobrenome"
+                    rules={[{ required: true, message: 'Por favor digite seu sobrenome' }]}
+                  >
+                    <Controller 
+                      name='lastName'
+                      control={control}
+                      render={(field) => <Input placeholder="Digite seu sobrenome" {...field} />}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="cpf"
+                    label="cpf"
+                    rules={[{ required: true, message: 'Por favor digite seu CPF' }]}
+                  >
+                    <Controller 
+                      name='cpf'
+                      control={control}
+                      render={(field) => <Input placeholder="Digite seu CPF" {...field} />}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </>
+          )}
+          {currentStep === 1 && (
+            <>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <strong>Lista de observações <small>(opcional)</small></strong>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  {fields.map((field, index) => (
+                    <Form.Item label={`Observação ${index + 1}`} key={field.id}>
+                      <Controller
+                        name={`observations.${index}.value`}
+                        control={control}
+                        render={({ field }) => <Input placeholder="Digite sua observação" {...field} />}
+                      />
+                      <Button onClick={() => remove(index)}>
+                        <MinusCircleOutlined className="dynamic-delete-button" />
+                      </Button>
+                    </Form.Item>
+                  ))}
+                  <Button 
+                    type="dashed"
+                    onClick={() => append({ value: '' })}
+                    style={{ width: '100%' }}
+                    icon={<PlusOutlined />}
+                  >
+                    adicionar observação
+                  </Button>   
+                </Col>
+              </Row>
+            </>
+          )}
         </Form>
-      </Drawer>
+      </StyledDrawer>
     </>
   )
 }
