@@ -6,7 +6,24 @@ export const StyleContentHome = styled.div `
   display: flex;
   justify-content: center;
   flex-direction: column;
+  
   .container {
-    padding:15px
+    padding:0 15px;
   }
+  
+  h1 {
+    margin-top: 20px;
+    font-size: 30px;
+    line-height: 44px;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    margin-top: 20px;
+    font-size: 25px;
+    line-height: 44px;
+    margin: 20px 0;
+  }
+
+
 `

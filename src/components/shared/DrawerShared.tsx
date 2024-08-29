@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Col, Drawer, Form, Input, Row, Space} from 'antd';
-import { useForm, useFieldArray, Controller} from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import styled from 'styled-components';
 import { useAtom } from 'jotai';
 import { clientListAtom } from '../../atoms/ClientAtoms';
@@ -16,30 +16,28 @@ interface FormData {
   firstName: string;
   lastName: string;
   cpf: string;
-  observations: {value: string}[];
+  observations: { value: string }[];
 }
 
 const DrawerShared = () => {
-
   const [currentStep, setCurrentStep] = useState(0);
   const [clientList, setClientList] = useAtom(clientListAtom);
-  
+
   const { control, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
       firstName: '',
       lastName: '',
       cpf: '',
-      observations: [{ value: ''}]
-    }
+      observations: [{ value: '' }],
+    },
   });
-  
+
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'observations'
+    name: 'observations',
   });
 
   const onSubmit = (data: FormData) => {
-    console.log('dt ==>',data)
     setClientList([
       ...clientList,
       {
@@ -47,8 +45,8 @@ const DrawerShared = () => {
         firstName: data.firstName,
         lastName: data.lastName,
         cpf: data.cpf,
-        observations: data.observations.map(obs => obs.value),
-      }
+        observations: data.observations.map((obs) => obs.value),
+      },
     ]);
     reset();
     onClose();
@@ -73,7 +71,7 @@ const DrawerShared = () => {
         Cadastro cliente
       </Button>
       <StyledDrawer
-        title="Cadatro de Cliente"
+        title="Cadastro de Cliente"
         width={480}
         onClose={onClose}
         open={open}
@@ -95,45 +93,34 @@ const DrawerShared = () => {
             <>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
-                    name="firstName"
-                    label="Nome"
-                    rules={[{ required: true, message: 'Por favor digite seu nome' }]}
-                  >
-                    <Controller 
-                      name='firstName'
+                  <Form.Item label="Nome">
+                    <Controller
+                      name="firstName"
                       control={control}
-                      render={(field) => <Input placeholder="Digite seu nome" {...field} />}
-                    />                    
+                      rules={{ required: 'Por favor digite seu nome' }}
+                      render={({ field }) => <Input placeholder="Digite seu nome" {...field} />}
+                    />
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
-                    name="lastName"
-                    label="Sobrenome"
-                    rules={[{ required: true, message: 'Por favor digite seu sobrenome' }]}
-                  >
-                    <Controller 
-                      name='lastName'
+                  <Form.Item label="Sobrenome">
+                    <Controller
+                      name="lastName"
                       control={control}
-                      render={(field) => <Input placeholder="Digite seu sobrenome" {...field} />}
+                      rules={{ required: 'Por favor digite seu sobrenome' }}
+                      render={({ field }) => <Input placeholder="Digite seu sobrenome" {...field} />}
                     />
                   </Form.Item>
                 </Col>
               </Row>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item
-                    name="cpf"
-                    label="cpf"
-                    rules={[{ required: true, message: 'Por favor digite seu CPF' }]}
-                  >
-                    <Controller 
-                      name='cpf'
+                  <Form.Item label="CPF">
+                    <Controller
+                      name="cpf"
                       control={control}
-                      render={(field) => <Input placeholder="Digite seu CPF" {...field} />}
+                      rules={{ required: 'Por favor digite seu CPF' }}
+                      render={({ field }) => <Input placeholder="Digite seu CPF" {...field} />}
                     />
                   </Form.Item>
                 </Col>
@@ -143,40 +130,40 @@ const DrawerShared = () => {
           {currentStep === 1 && (
             <>
               <Row gutter={16}>
-                <Col span={12}>
+                <Col span={24}>
                   <strong>Lista de observações <small>(opcional)</small></strong>
                 </Col>
               </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  {fields.map((field, index) => (
-                    <Form.Item label={`Observação ${index + 1}`} key={field.id}>
+              {fields.map((field, index) => (
+                <Row gutter={16} key={field.id} style={{marginBottom: '5px'}}>
+                  <Col span={20}>
+                    <Form.Item label={`Observação ${index + 1}`}>
                       <Controller
                         name={`observations.${index}.value`}
                         control={control}
                         render={({ field }) => <Input placeholder="Digite sua observação" {...field} />}
                       />
-                      <Button onClick={() => remove(index)}>
-                        <MinusCircleOutlined className="dynamic-delete-button" />
-                      </Button>
                     </Form.Item>
-                  ))}
-                  <Button 
-                    type="dashed"
-                    onClick={() => append({ value: '' })}
-                    style={{ width: '100%' }}
-                    icon={<PlusOutlined />}
-                  >
-                    adicionar observação
-                  </Button>   
-                </Col>
-              </Row>
+                  </Col>
+                  <Col span={4} style={{display:'flex', alignItems:'flex-end', paddingBottom: '24px'}}>
+                    <Button style={{marginTop: '30'}} onClick={() => remove(index)} icon={<MinusCircleOutlined />} />
+                  </Col>
+                </Row>
+              ))}
+              <Button
+                type="dashed"
+                onClick={() => append({ value: '' })}
+                style={{ width: '100%' }}
+                icon={<PlusOutlined />}
+              >
+                adicionar observação
+              </Button>
             </>
           )}
         </Form>
       </StyledDrawer>
     </>
-  )
-}
+  );
+};
 
 export default DrawerShared;
